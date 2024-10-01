@@ -92,10 +92,9 @@ fun GuessWordGame() {
                 showSnackbar = "You lost!"
                 restartCurrentWord()
             }
-
         }
     }
-    LaunchedEffect( isGuessedCorrectly) {
+    LaunchedEffect(isGuessedCorrectly) {
         when {
             isGuessedCorrectly -> {
                 showSnackbar = "You guessed it right!"
@@ -106,7 +105,7 @@ fun GuessWordGame() {
     val onHintUsed: () -> Unit = {
         if (remainingTurns <= 1 && hintState >0&& hintState<3) {
             // If using the hint would cause the player to lose, show a toast
-            Toast.makeText(context, "Hint not available", Toast.LENGTH_SHORT).show()
+            showSnackbar = "Hints not available!"
         }  else {
             when (hintState) {
                 0 -> {
@@ -132,7 +131,7 @@ fun GuessWordGame() {
                     hintState++
                 }
                 else -> {
-                    Toast.makeText(context, "No more hints available", Toast.LENGTH_SHORT).show()
+                    showSnackbar = "No more hints available!"
                 }
             }
         }
@@ -182,12 +181,12 @@ fun GuessWordGame() {
                     .padding(start = 8.dp),
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.Center
-            ) { Spacer(modifier=Modifier.weight(0.1f))
+            ) { Spacer(modifier=Modifier.weight(1f))
                 Panel3(
                     wordToGuess = currentWord,
                     guessedLetters = guessedLetters,
                     remainingTurns = remainingTurns,
-                    modifier = Modifier.weight(0.3f).fillMaxWidth()
+                    modifier = Modifier.weight(3f).fillMaxWidth()
                 )
                 Button(
                     onClick = onNewGame,
