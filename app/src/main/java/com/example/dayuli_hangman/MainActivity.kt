@@ -61,14 +61,14 @@ fun GuessWordGame() {
 
     var currentWordIndex by rememberSaveable { mutableStateOf(0) }
     val (currentWord, currentHint) = wordHintList[currentWordIndex]
-
     var guessedLetters by rememberSaveable { mutableStateOf(listOf<Char>()) }
     var remainingTurns by rememberSaveable { mutableStateOf(6) }
     var hintState by rememberSaveable { mutableStateOf(0) }
-    val context = LocalContext.current
-    val isGuessedCorrectly = currentWord.all { guessedLetters.contains(it) }
-    var showSnackbar by remember { mutableStateOf<String?>(null) }
     var hintText by rememberSaveable { mutableStateOf<String?>(null) }
+    var showToast by remember { mutableStateOf<String?>(null) }
+    val isGuessedCorrectly = currentWord.all { guessedLetters.contains(it) }
+
+    val context = LocalContext.current
 
     val onNewGame: () -> Unit = {
         currentWordIndex = (currentWordIndex + 1) % wordHintList.size
@@ -86,10 +86,10 @@ fun GuessWordGame() {
     LaunchedEffect(remainingTurns) {
         when {
             remainingTurns == 1 -> {
-                showSnackbar = "You're about to die!"
+                showToast = "You're about to die!"
             }
             remainingTurns == 0 -> {
-                showSnackbar = "You lost!"
+                showToast = "You lost!"
                 restartCurrentWord()
             }
         }
@@ -97,15 +97,15 @@ fun GuessWordGame() {
     LaunchedEffect(isGuessedCorrectly) {
         when {
             isGuessedCorrectly -> {
-                showSnackbar = "You guessed it right!"
+                showToast = "You guessed it right!"
                 onNewGame()
             }
         }
     }
     val onHintUsed: () -> Unit = {
-        if (remainingTurns <= 1 && hintState >0&& hintState<3) {
+        if (remainingTurns <= 1 && hintState >0 && hintState<3) {
             // If using the hint would cause the player to lose, show a toast
-            showSnackbar = "Hints not available!"
+            showToast = "Hints not available!（1 hp left）"
         }  else {
             when (hintState) {
                 0 -> {
@@ -131,7 +131,7 @@ fun GuessWordGame() {
                     hintState++
                 }
                 else -> {
-                    showSnackbar = "No more hints available!"
+                    showToast = "No more hints available!"
                 }
             }
         }
@@ -200,6 +200,14 @@ fun GuessWordGame() {
         Column(
             modifier = Modifier.fillMaxSize().padding(8.dp)
         ) {
+            Spacer(modifier=Modifier.weight(0.5f))
+
+            Panel3(
+                wordToGuess = currentWord,
+                guessedLetters = guessedLetters,
+                remainingTurns = remainingTurns,
+                modifier = Modifier.weight(1f)
+            )
             Text(
                 text = "Choose the letter",
                 style = MaterialTheme.typography.titleLarge,
@@ -218,14 +226,6 @@ fun GuessWordGame() {
                 selectedLetters = guessedLetters,
                 modifier = Modifier.weight(1f)
             )
-
-            Panel3(
-                wordToGuess = currentWord,
-                guessedLetters = guessedLetters,
-                remainingTurns = remainingTurns,
-                modifier = Modifier.weight(1f)
-            )
-
             Button(
                 onClick = onNewGame,
                 modifier = Modifier
@@ -236,10 +236,10 @@ fun GuessWordGame() {
             }
         }
     }
-    showSnackbar?.let {
+    showToast?.let {
         LaunchedEffect(it) {
             Toast.makeText(context, it, Toast.LENGTH_SHORT).show()
-            showSnackbar = null
+            showToast = null
         }
     }
 }
